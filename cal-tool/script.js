@@ -31,3 +31,56 @@ console.log('清洗后：', cleanExpenses(rawExpenses));
 console.log('平均消费：', average(cleanExpenses(rawExpenses)));
 console.log('最高消费：', highest(cleanExpenses(rawExpenses)));
 console.log('大额支出：', largeExpenses(cleanExpenses(rawExpenses)));
+
+const categoryCount = (list) => {
+  const result = { 餐饮: 0, 数码: 0, 交通: 0, 生活: 0, 其他: 0 };
+  list.forEach(item => {
+    if (result[item.category] !== undefined) {
+      result[item.category]++;
+    } else {
+      result.其他++;
+    }
+  });
+  return result;
+};
+
+const sortExpenses = (list) => [...list].sort((a, b) => {
+  if (a.category !== b.category) {
+    return a.category > b.category ? 1 : -1;
+  }
+  return b.amount - a.amount;
+});
+
+const report = (list) => {
+  const valid = cleanExpenses(list);
+  if (valid.length === 0) {
+    return '没有有效账单';
+  }
+  const dist = categoryCount(valid);
+  const maxItem = highest(valid);
+  return `有效账单${valid.length}笔，平均每笔${average(valid)}元，最高单笔${maxItem.amount}元（${maxItem.title}）；类别分布：餐饮${dist.餐饮}笔 数码${dist.数码}笔 交通${dist.交通}笔 生活${dist.生活}笔；大额支出：${largeExpenses(valid).join('、') || '无'}`;
+};
+
+try {
+  console.log(report(rawExpenses));
+  console.log('双字段排序结果：', sortExpenses(cleanExpenses(rawExpenses)));
+  console.log('空数据防御测试：', report([]));
+} catch (err) {
+  console.error('报告生成失败：', err.message);
+}
+
+const testList = [];
+for (let i = 0; i < 10000; i++) {
+  testList.push({ amount: 10 });
+}
+
+console.time('for循环耗时');
+let totalFor = 0;
+for (let i = 0; i < testList.length; i++) {
+  totalFor += testList[i].amount;
+}
+console.timeEnd('for循环耗时');
+
+console.time('reduce耗时');
+const totalReduce = testList.reduce((sum, item) => sum + item.amount, 0);
+console.timeEnd('reduce耗时');
