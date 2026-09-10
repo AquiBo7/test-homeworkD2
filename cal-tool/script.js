@@ -10,3 +10,24 @@ const rawExpenses = [
 ];
 
 console.table(rawExpenses);
+
+const cleanExpenses = (list) => list.filter(item => {
+  const isDate = /^\d{4}-\d{2}-\d{2}$/.test(item.date);
+  const isAmount = typeof item.amount === 'number' && item.amount > 0;
+  return isDate && isAmount;
+});
+
+const average = (list) => {
+  if (list.length === 0) return 0;
+  const total = list.reduce((sum, item) => sum + item.amount, 0);
+  return (total / list.length).toFixed(2);
+};
+
+const highest = (list) => list.reduce((max, item) => item.amount > max.amount ? item : max, list[0]);
+
+const largeExpenses = (list) => list.filter(item => item.amount >= 50).map(item => item.title);
+
+console.log('清洗后：', cleanExpenses(rawExpenses));
+console.log('平均消费：', average(cleanExpenses(rawExpenses)));
+console.log('最高消费：', highest(cleanExpenses(rawExpenses)));
+console.log('大额支出：', largeExpenses(cleanExpenses(rawExpenses)));
